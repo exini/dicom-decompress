@@ -37,10 +37,8 @@ find . -name "*.dcm" -exec dicom-decompress {} {} \;
 * **To build**: `python setup.py sdist bdist_wheel` *(requires python3 + wheel package)*
 * **To install**: `pip install --force-reinstall dist/dicom-decompress-x.y.z-py3-none-any.whl`, *(x.y.z is version, see
   setup.py)*
-* **To run**: Run the terminal command `dicom-decompress <input file> <output file>`.
-    * To decompress multiple files in-place run e.g.
-      ```bash
-      find . -name "*.dcm" -exec dicom-decompress {} {} \;
-      ```
-
-##   
+* **To publish**
+  * Install twine: `pip install twine`
+  * Build package (cf. above)
+  * Make sure it passes the twine check: `twine check dist/*`
+  * Publish: `twine upload dist/*`
