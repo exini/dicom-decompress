@@ -15,7 +15,7 @@ setup(
     author_email="karl.sjostrand@exini.com",
     license="GPLv3",
     classifiers=[
-        "License :: OSI Approved :: GPLv3 License",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.8",
     ],
