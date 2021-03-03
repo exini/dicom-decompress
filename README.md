@@ -21,7 +21,7 @@ where `in.dcm` is the file to decompress and `out.dcm` is the decompressed targe
 To decompress multiple files in-place run e.g.
 
 ```bash
-find . -name "*.dcm" -exec dicom-decompress {} {} \;
+find . -name "*.dcm" -exec echo {} \; -exec dicom-decompress {} {} \;
 ```
 
 ### Dependencies
@@ -35,7 +35,7 @@ find . -name "*.dcm" -exec dicom-decompress {} {} \;
 ## Development
 
 * **To build**: `python setup.py sdist bdist_wheel` *(requires python3 + wheel package)*
-* **To install**: `pip install --force-reinstall dist/dicom-decompress-x.y.z-py3-none-any.whl`, *(x.y.z is version, see
+* **To install**: `pip install --force-reinstall dist/dicom_decompress-x.y.z-py3-none-any.whl`, *(x.y.z is version, see
   setup.py)*
 * **To publish**
   * Install twine: `pip install twine`

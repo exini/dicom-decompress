@@ -4,22 +4,25 @@ import pydicom
 
 def main():
     if len(sys.argv) != 3:
-        sys.stderr.write('Usage: dicom_decompress <input file> <output file>')
+        sys.stderr.write('Usage: dicom_decompress <input file> <output file>\n')
         exit(1)
 
+    in_file = sys.argv[1]
+    out_file = sys.argv[2]
+
     try:
-        dataset = pydicom.dcmread(sys.argv[1], force=True)
+        dataset = pydicom.dcmread(in_file, force=True)
         try:
             dataset.decompress()
         except:
             try:
                 dataset.decompress('pylibjpeg')
             except Exception as e:
-                sys.stderr.write(f'Decompression not possible: {e}')
-                exit(1)
-        pydicom.dcmwrite(sys.argv[2], dataset, write_like_original=False)
+                sys.stdout.write(
+                    f'Decompression attempted but failed, writing file as-is. Reason: {e}\n')
+        pydicom.dcmwrite(out_file, dataset, write_like_original=False)
     except Exception as e:
-        sys.stderr.write(f'Error in DICOM read/write: {e}')
+        sys.stderr.write(f'Error in DICOM read/write: {e}\n')
         exit(1)
 
 
