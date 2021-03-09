@@ -1,7 +1,7 @@
 # dicom-decompress
 
 A command-line utility for decompressing DICOM files with compressed pixel data. If photometric interpretation is one of
-`YBR_FULL`, `YBR_FULL_422` pixel data will be transcoded to `RBG`.
+`YBR_FULL`, `YBR_FULL_422`, `PALETTE COLOR` an attempt to transcode pixel data to `RBG` will be made.
 
 
 ## Installation
