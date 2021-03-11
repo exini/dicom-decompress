@@ -30,9 +30,6 @@ find . -name "*.dcm" -exec echo {} \; -exec dicom-decompress {} {} \;
 
 * [numpy](https://pypi.org/project/numpy/)
 * [pydicom](https://pypi.org/project/pydicom/)
-* [pylibjpeg](https://pypi.org/project/pylibjpeg/)
-* [pylibjpeg-libjpeg](https://pypi.org/project/pylibjpeg-libjpeg/)
-* [pylibjpeg-openjpeg](https://pypi.org/project/pylibjpeg-openjpeg/)
 
 ## Development
 
