@@ -37,7 +37,7 @@ def decompress(dataset, ts):
         dataset.decompress()
     except:
         try:
-            dataset.decompress('pylibjpeg')
+            dataset.decompress('gdcm')
         except Exception as e:
             sys.stderr.write(f'Decompression of transfer syntax {ts} failed. Reason: {e}\n')
 
