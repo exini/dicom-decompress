@@ -1,7 +1,7 @@
 # dicom-decompress
 
-A command-line utility for decompressing DICOM files with compressed pixel data. If photometric interpretation is one of
-`YBR_FULL`, `YBR_FULL_422`, `PALETTE COLOR` an attempt to transcode pixel data to `RBG` will be made.
+A command-line utility for decompressing DICOM files with compressed pixel data. Optionally, ff photometric 
+interpretation is one of `YBR_FULL`, `YBR_FULL_422`, `PALETTE COLOR` pixel data will be transcoded to `RBG`.
 
 
 ## Installation
@@ -18,12 +18,17 @@ To decompress a single file run
 dicom-decompress in.dcm out.dcm
 ```
 
-where `in.dcm` is the file to decompress and `out.dcm` is the decompressed target file.
+where `in.dcm` is the file to decompress and `out.dcm` is the decompressed target file. To attempt transcoding for non
+monochrome or rgb images add the `--transcode` flag:
+
+```bash
+dicom-decompress --transcode in.dcm out.dcm
+```
 
 To decompress multiple files in-place run e.g.
 
 ```bash
-find . -name "*.dcm" -exec echo {} \; -exec dicom-decompress {} {} \;
+find . -name "*.dcm" -exec echo {} \; -exec dicom-decompress --transcode {} {} \;
 ```
 
 ### Dependencies
