@@ -1,4 +1,5 @@
 import sys
+import argparse
 import pydicom
 
 ts_skip = [
@@ -35,9 +36,11 @@ supported_photometric_interpretations = [
 def decompress(dataset, ts):
     try:
         dataset.decompress()
+        sys.stdout.write(f"Decompression successful from transfer syntax UID {ts}\n")
     except:
         try:
             dataset.decompress('gdcm')
+            sys.stdout.write(f"Decompression successful from transfer syntax UID {ts}\n")
         except Exception as e:
             sys.stderr.write(f'Decompression of transfer syntax {ts} failed. Reason: {e}\n')
 
@@ -57,20 +60,23 @@ def transcode(dataset, pi):
         dataset.BitsAllocated = 8
         dataset.BitsStored = 8
         dataset.HighBit = 7
+        sys.stdout.write(f"Transcoding successful from photometric interpretation {pi}\n")
     except Exception as e:
         sys.stderr.write(f'Transcoding from {pi} to RGB failed. Reason: {e}\n')
 
 
 def main():
-    if len(sys.argv) != 3:
-        sys.stderr.write('Usage: dicom_decompress <input file> <output file>\n')
-        exit(1)
+    parser = argparse.ArgumentParser(description='Decompress and transcode pixel data in DICOM files.')
+    parser.add_argument('in_file', type=argparse.FileType('rb'), help='Input DICOM file name')
+    parser.add_argument('out_file', type=argparse.FileType('wb'), help='Output file name')
+    parser.add_argument('--transcode', dest='transcode', action='store_const',
+                        const=True, default=False,
+                        help='If Photometric Interpretation is not RGB, try transcoding it to RGB. By default, transcoding will not be attempted.')
 
-    in_file = sys.argv[1]
-    out_file = sys.argv[2]
+    args = parser.parse_args()
 
     try:
-        dataset = pydicom.dcmread(in_file, force=True)
+        dataset = pydicom.dcmread(args.in_file, force=True)
 
         if 'TransferSyntaxUID' not in dataset.file_meta:
             dataset.file_meta.TransferSyntaxUID = pydicom.uid.ImplicitVRLittleEndian
@@ -83,17 +89,15 @@ def main():
 
         if ts in ts_decompress:
             decompress(dataset, ts)
-            sys.stdout.write(f"Decompression successful from transfer syntax UID {ts}\n")
         elif ts in ts_skip:
-            sys.stdout.write(f"Transfer syntax UID {ts} is uncompressed, skipping\n")
+            sys.stdout.write(f"Transfer syntax UID {ts} is uncompressed\n")
         else:
-            sys.stdout.write(f"Transfer syntax UID {ts} not supported, skipping\n")
+            sys.stdout.write(f"Transfer syntax UID {ts} not supported\n")
 
-        if pi in supported_photometric_interpretations:
+        if args.transcode and pi in supported_photometric_interpretations:
             transcode(dataset, pi)
-            sys.stdout.write(f"Transcoding successful from photometric interpretation {pi}\n")
 
-        pydicom.dcmwrite(out_file, dataset, write_like_original=False)
+        pydicom.dcmwrite(args.out_file, dataset, write_like_original=False)
 
     except Exception as e:
         sys.stderr.write(f'Error in DICOM read/write: {e}\n')
