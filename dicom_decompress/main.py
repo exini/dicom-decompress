@@ -43,6 +43,9 @@ def decompress(dataset, ts):
             sys.stdout.write(f"Decompression successful from transfer syntax UID {ts}\n")
         except Exception as e:
             sys.stderr.write(f'Decompression of transfer syntax {ts} failed. Reason: {e}\n')
+    if dataset.BitsStored == 16 and dataset['PixelData'].VR == 'OB':
+        sys.stdout.write(f'Bits stored is 16 and VR or pixel data is OB - switching to OW.\n')
+        dataset['PixelData'].VR = 'OW'
 
 
 def transcode(dataset, pi):
