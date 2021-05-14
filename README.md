@@ -12,6 +12,13 @@ pip install dicom-decompress
 
 This will install the terminal command `dicom-decompress` in your environment.
 
+Some transfer syntaxes need the c++ library [GDCM](http://gdcm.sourceforge.net/) installed. Install this by
+```bash
+conda install gdcm -c conda-forge
+```
+See [here](https://docs.conda.io/projects/continuumio-conda/en/latest/user-guide/install/index.html#) on how to install 
+conda.
+
 To decompress a single file run
 
 ```bash
@@ -37,6 +44,19 @@ find . -name "*.dcm" -exec echo {} \; -exec dicom-decompress --transcode {} {} \
 * [pydicom](https://pypi.org/project/pydicom/)
 
 ## Development
+
+Update your `.pypirc` file in your home directory to include
+```buildoutcfg
+index-servers = 
+	pypi
+	<your other servers...>
+    
+[pypi]
+repository: https://upload.pypi.org/legacy/
+username: <your pypi username>
+
+...
+```
 
 * **To build**: `python setup.py sdist bdist_wheel` *(requires python3 + wheel package)*
 * **To install**: `pip install --force-reinstall dist/dicom_decompress-x.y.z-py3-none-any.whl`, *(x.y.z is version, see

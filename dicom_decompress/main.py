@@ -1,3 +1,4 @@
+import pathlib
 import sys
 import argparse
 import pydicom
@@ -70,8 +71,8 @@ def transcode(dataset, pi):
 
 def main():
     parser = argparse.ArgumentParser(description='Decompress and transcode pixel data in DICOM files.')
-    parser.add_argument('in_file', type=argparse.FileType('rb'), help='Input DICOM file name')
-    parser.add_argument('out_file', type=argparse.FileType('wb'), help='Output file name')
+    parser.add_argument('in_file', type=pathlib.Path, help='Input DICOM file name')
+    parser.add_argument('out_file', type=pathlib.Path, help='Output file name')
     parser.add_argument('--transcode', dest='transcode', action='store_const',
                         const=True, default=False,
                         help='If Photometric Interpretation is not RGB, try transcoding it to RGB. By default, transcoding will not be attempted.')
