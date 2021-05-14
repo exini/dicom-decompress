@@ -26,12 +26,19 @@ ts_decompress = [
 
 pi_rgb = 'RGB'
 pi_palette = 'PALETTE COLOR'
+pi_ybr_rct = 'YBR_RCT'
+pi_ybr_ict = 'YBR_ICT'
+
+jpeg2000_photometric_interpretations = [
+    pi_ybr_rct,
+    pi_ybr_ict
+]
 
 supported_photometric_interpretations = [
-    'YBR_FULL',
-    'YBR_FULL_422',
     pi_palette,
-]
+    'YBR_FULL',
+    'YBR_FULL_422'
+] + jpeg2000_photometric_interpretations
 
 
 def decompress(dataset, ts):
@@ -47,19 +54,22 @@ def decompress(dataset, ts):
     if dataset.BitsStored == 16 and dataset['PixelData'].VR == 'OB':
         sys.stdout.write(f'Bits stored is 16 and VR or pixel data is OB - switching to OW.\n')
         dataset['PixelData'].VR = 'OW'
+    if dataset.pixel_array.size > 0:
+        dataset.PixelData = dataset.pixel_array.tobytes()
 
 
 def transcode(dataset, pi):
     try:
         arr = dataset.pixel_array
-        if pi == pi_palette:
-            rgb = pydicom.pixel_data_handlers.util.apply_color_lut(arr, dataset)
-            dataset.SamplesPerPixel = 3
-            dataset.PlanarConfiguration = 0
-        else:
-            rgb = pydicom.pixel_data_handlers.convert_color_space(arr, pi, pi_rgb)
-        rgb = (rgb / 256).astype('uint8') if rgb.dtype == 'uint16' else rgb
-        dataset.PixelData = rgb.tobytes()
+        if pi not in jpeg2000_photometric_interpretations:
+            if pi == pi_palette:
+                rgb = pydicom.pixel_data_handlers.util.apply_color_lut(arr, dataset)
+                dataset.SamplesPerPixel = 3
+                dataset.PlanarConfiguration = 0
+            else:
+                rgb = pydicom.pixel_data_handlers.convert_color_space(arr, pi, pi_rgb)
+            rgb = (rgb / 256).astype('uint8') if rgb.dtype == 'uint16' else rgb
+            dataset.PixelData = rgb.tobytes()
         dataset.PhotometricInterpretation = pi_rgb
         dataset.BitsAllocated = 8
         dataset.BitsStored = 8
