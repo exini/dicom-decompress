@@ -28,16 +28,16 @@ pi_rgb = 'RGB'
 pi_palette = 'PALETTE COLOR'
 pi_ybr_rct = 'YBR_RCT'
 pi_ybr_ict = 'YBR_ICT'
+pi_ybr_full = 'YBR_FULL'
 
 jpeg2000_photometric_interpretations = [
     pi_ybr_rct,
     pi_ybr_ict
 ]
 
-supported_photometric_interpretations = [
+supported_photometric_interpretations = [   
     pi_palette,
-    'YBR_FULL',
-    'YBR_FULL_422'
+    pi_ybr_full
 ] + jpeg2000_photometric_interpretations
 
 
@@ -56,6 +56,8 @@ def decompress(dataset, ts):
         dataset['PixelData'].VR = 'OW'
     if dataset.pixel_array.size > 0:
         dataset.PixelData = dataset.pixel_array.tobytes()
+    if dataset.PhotometricInterpretation == 'YBR_FULL_422':
+        dataset.PhotometricInterpretation = pi_ybr_full
 
 
 def transcode(dataset, pi):
@@ -99,7 +101,6 @@ def main():
             dataset.PhotometricInterpretation = 'MONOCHROME2'
 
         ts = dataset.file_meta.TransferSyntaxUID
-        pi = dataset.PhotometricInterpretation
 
         if ts in ts_decompress:
             decompress(dataset, ts)
@@ -107,6 +108,8 @@ def main():
             sys.stdout.write(f"Transfer syntax UID {ts} is uncompressed\n")
         else:
             sys.stdout.write(f"Transfer syntax UID {ts} not supported\n")
+
+        pi = dataset.PhotometricInterpretation
 
         if args.transcode and pi in supported_photometric_interpretations:
             transcode(dataset, pi)
