@@ -10,9 +10,11 @@ ts_skip = [
     '1.2.840.10008.1.2.1.99',
 ]
 
+jpeg_baseline_process_1 = '1.2.840.10008.1.2.4.50'
+
 ts_decompress = [
     '1.2.840.10008.1.2.5',
-    '1.2.840.10008.1.2.4.50',
+    jpeg_baseline_process_1,
     '1.2.840.10008.1.2.4.51',
     '1.2.840.10008.1.2.4.57',
     '1.2.840.10008.1.2.4.70',
@@ -29,6 +31,7 @@ pi_palette = 'PALETTE COLOR'
 pi_ybr_rct = 'YBR_RCT'
 pi_ybr_ict = 'YBR_ICT'
 pi_ybr_full = 'YBR_FULL'
+pi_ybr_full_422 = 'YBR_FULL_422'
 
 jpeg2000_photometric_interpretations = [
     pi_ybr_rct,
@@ -37,7 +40,8 @@ jpeg2000_photometric_interpretations = [
 
 supported_photometric_interpretations = [   
     pi_palette,
-    pi_ybr_full
+    pi_ybr_full,
+    pi_ybr_full_422
 ] + jpeg2000_photometric_interpretations
 
 
@@ -56,7 +60,7 @@ def decompress(dataset, ts):
         dataset['PixelData'].VR = 'OW'
     if dataset.pixel_array.size > 0:
         dataset.PixelData = dataset.pixel_array.tobytes()
-    if dataset.PhotometricInterpretation == 'YBR_FULL_422':
+    if dataset.PhotometricInterpretation == 'YBR_FULL_422' and ts == jpeg_baseline_process_1:
         dataset.PhotometricInterpretation = pi_ybr_full
 
 
