@@ -60,7 +60,7 @@ def decompress(dataset, ts):
         dataset['PixelData'].VR = 'OW'
     if dataset.pixel_array.size > 0:
         dataset.PixelData = dataset.pixel_array.tobytes()
-    if dataset.PhotometricInterpretation == 'YBR_FULL_422' and ts == jpeg_baseline_process_1:
+    if dataset.PhotometricInterpretation == pi_ybr_full_422 and ts == jpeg_baseline_process_1:
         dataset.PhotometricInterpretation = pi_ybr_full
 
 
