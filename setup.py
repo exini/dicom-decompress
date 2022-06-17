@@ -6,7 +6,7 @@ README = (HERE / "README.md").read_text()
 
 setup(
     name="dicom-decompress",
-    version="0.1.0",
+    version="0.2.0",
     description="Minimal command-line tool for decompressing DICOM files with compressed pixel data.",
     long_description=README,
     long_description_content_type="text/markdown",
