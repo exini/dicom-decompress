@@ -6,7 +6,7 @@ README = (HERE / "README.md").read_text()
 
 setup(
     name="dicom-decompress",
-    version="0.2.0",
+    version="1.0.0",
     description="Minimal command-line tool for decompressing DICOM files with compressed pixel data.",
     long_description=README,
     long_description_content_type="text/markdown",
@@ -20,11 +20,9 @@ setup(
     ],
     packages=["dicom_decompress"],
     include_package_data=False,
-    python_requires='>=3.8',
     install_requires=[
-        'numpy==1.20.1',
-        'pydicom==2.1.2',
-        'wheel==0.35.1'
+        'numpy==1.24.0',
+        'pydicom==2.4.3'
     ],
     entry_points={
         'console_scripts': ['dicom-decompress=dicom_decompress.main:main']
