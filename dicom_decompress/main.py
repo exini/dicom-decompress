@@ -1,5 +1,4 @@
 import argparse
-import os
 import pathlib
 import sys
 
@@ -89,21 +88,23 @@ def transcode(dataset, pi):
 
 def main():
     parser = argparse.ArgumentParser(description='Decompress and transcode pixel data in DICOM files.')
-    parser.add_argument('in_file', type=pathlib.Path,
-                        help='Input DICOM file name. Can also point to a directory in which case the out_file argument is ignored and all DICOM files found recursively will be processed in-place.')
-    parser.add_argument('out_file', type=pathlib.Path, help='Output file name', nargs='?')
+    parser.add_argument('--in', dest='in_files', nargs='+', type=pathlib.Path, help='List of input DICOM file names')
+    parser.add_argument('--out', dest='out_files', nargs='+', type=pathlib.Path, help='List of output file names, one for each input file name', required=False)
     parser.add_argument('--transcode', dest='transcode', action='store_const',
                         const=True, default=False,
                         help='If Photometric Interpretation is not RGB, try transcoding it to RGB. By default, transcoding will not be attempted.')
 
     args = parser.parse_args()
-    if os.path.isdir(args.in_file):
-        all_files = [(f, f) for f in args.in_file.rglob('*') if os.path.isfile(f) and not f.name.startswith('.')]
+    in_files = args.in_files
+    if args.out_files is None:
+        out_files = in_files
+    elif len(in_files) != len(args.out_files):
+        sys.stderr.write(f'Number of output arguments must match input arguments\n')
+        exit(1)
     else:
-        out_file = args.out_file if args.out_file is not None else args.in_file
-        all_files = [(args.in_file, out_file)]
+        out_files = args.out_files
 
-    for in_file, out_file in all_files:
+    for in_file, out_file in zip(in_files, out_files):
         try:
             dataset = pydicom.dcmread(in_file, force=True)
 
