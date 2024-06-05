@@ -1,6 +1,7 @@
+import argparse
 import pathlib
 import sys
-import argparse
+
 import pydicom
 
 ts_skip = [
@@ -38,11 +39,11 @@ jpeg2000_photometric_interpretations = [
     pi_ybr_ict
 ]
 
-supported_photometric_interpretations = [   
-    pi_palette,
-    pi_ybr_full,
-    pi_ybr_full_422
-] + jpeg2000_photometric_interpretations
+supported_photometric_interpretations = [
+                                            pi_palette,
+                                            pi_ybr_full,
+                                            pi_ybr_full_422
+                                        ] + jpeg2000_photometric_interpretations
 
 
 def decompress(dataset, ts):
@@ -87,42 +88,54 @@ def transcode(dataset, pi):
 
 def main():
     parser = argparse.ArgumentParser(description='Decompress and transcode pixel data in DICOM files.')
-    parser.add_argument('in_file', type=pathlib.Path, help='Input DICOM file name')
-    parser.add_argument('out_file', type=pathlib.Path, help='Output file name')
+    parser.add_argument('--in', dest='in_files', nargs='+', type=pathlib.Path, help='List of input DICOM file names')
+    parser.add_argument('--out', dest='out_files', nargs='+', type=pathlib.Path, help='List of output file names, one for each input file name', required=False)
     parser.add_argument('--transcode', dest='transcode', action='store_const',
                         const=True, default=False,
                         help='If Photometric Interpretation is not RGB, try transcoding it to RGB. By default, transcoding will not be attempted.')
 
     args = parser.parse_args()
-
-    try:
-        dataset = pydicom.dcmread(args.in_file, force=True)
-
-        if 'TransferSyntaxUID' not in dataset.file_meta:
-            dataset.file_meta.TransferSyntaxUID = pydicom.uid.ImplicitVRLittleEndian
-
-        if 'PhotometricInterpretation' not in dataset:
-            dataset.PhotometricInterpretation = 'MONOCHROME2'
-
-        ts = dataset.file_meta.TransferSyntaxUID
-
-        if ts in ts_decompress:
-            decompress(dataset, ts)
-        elif ts in ts_skip:
-            sys.stdout.write(f"Transfer syntax UID {ts} is uncompressed\n")
-        else:
-            sys.stdout.write(f"Transfer syntax UID {ts} not supported\n")
-
-        pi = dataset.PhotometricInterpretation
-
-        if args.transcode and pi in supported_photometric_interpretations:
-            transcode(dataset, pi)
-
-        pydicom.dcmwrite(args.out_file, dataset, write_like_original=False)
-
-    except Exception as e:
-        sys.stderr.write(f'Error in DICOM read/write: {e}\n')
+    in_files = args.in_files
+    if args.out_files is None:
+        out_files = in_files
+    elif len(in_files) != len(args.out_files):
+        sys.stderr.write(f'Number of output arguments must match input arguments\n')
         exit(1)
+    else:
+        out_files = args.out_files
+
+    for in_file, out_file in zip(in_files, out_files):
+        try:
+            dataset = pydicom.dcmread(in_file, force=True)
+
+            if 'PixelData' in dataset:
+                if 'TransferSyntaxUID' not in dataset.file_meta:
+                    dataset.file_meta.TransferSyntaxUID = pydicom.uid.ImplicitVRLittleEndian
+
+                if 'PhotometricInterpretation' not in dataset:
+                    dataset.PhotometricInterpretation = 'MONOCHROME2'
+
+                ts = dataset.file_meta.TransferSyntaxUID
+
+                if ts in ts_decompress:
+                    decompress(dataset, ts)
+                elif ts in ts_skip:
+                    sys.stdout.write(f"Transfer syntax UID {ts} is uncompressed\n")
+                else:
+                    sys.stdout.write(f"Transfer syntax UID {ts} not supported\n")
+
+                pi = dataset.PhotometricInterpretation
+
+                if args.transcode and pi in supported_photometric_interpretations:
+                    transcode(dataset, pi)
+
+                pydicom.dcmwrite(out_file, dataset, write_like_original=False)
+            else:
+                sys.stdout.write(f"Skipping file {in_file} without pixel data\n")
+
+        except Exception as e:
+            sys.stderr.write(f'Error in DICOM read/write: {e}\n')
+            exit(1)
 
 
 if __name__ == "__main__":
